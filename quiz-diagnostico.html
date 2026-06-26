@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnóstico Digital — Onde está vazando a sua presença?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple:       #6D28D9;
+      --purple-dark:  #4C1D95;
+      --purple-light: #EDE9FE;
+      --pink:         #EC4899;
+      --pink-dark:    #BE185D;
+      --text:         #111827;
+      --muted:        #6B7280;
+      --border:       #E5E7EB;
+      --bg-off:       #F9FAFB;
+      --white:        #FFFFFF;
+      --red:          #EF4444;
+      --orange:       #F97316;
+      --blue:         #3B82F6;
+      --green:        #10B981;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1E1B4B 0%, #4C1D95 55%, #7C3AED 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ── CARD ─────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: 24px;
+      max-width: 620px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    }
+
+    /* ── HEADER ───────────────────────────────────── */
+    .card-header {
+      background: linear-gradient(135deg, #4C1D95, #7C3AED);
+      padding: 32px 40px 24px;
+      color: var(--white);
+      position: relative;
+    }
+    .header-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: .65;
+      margin-bottom: 10px;
+    }
+    .card-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .card-header p {
+      font-size: 13px;
+      opacity: .8;
+      line-height: 1.6;
+    }
+
+    /* ── PROGRESS ─────────────────────────────────── */
+    .progress-wrap {
+      height: 5px;
+      background: rgba(255,255,255,.15);
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--pink);
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── BODY ─────────────────────────────────────── */
+    .card-body { padding: 36px 40px; }
+
+    /* ── SCREENS ──────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:translateY(0);} }
+
+    /* ── INTRO ────────────────────────────────────── */
+    .intro-lead {
+      font-size: 16px;
+      color: var(--text);
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+    .what-you-get {
+      background: var(--purple-light);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .what-you-get p {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+    .what-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 13.5px;
+      color: var(--purple-dark);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .what-item:last-child { margin-bottom: 0; }
+    .what-icon { flex-shrink: 0; font-size: 16px; }
+
+    /* ── FORM ─────────────────────────────────────── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 14.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      color: var(--text);
+    }
+    .form-group input::placeholder { color: #9CA3AF; }
+    .form-group input:focus { border-color: var(--purple); }
+    .form-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -8px;
+      margin-bottom: 16px;
+    }
+
+    /* ── QUESTION ─────────────────────────────────── */
+    .q-meta {
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--purple);
+      margin-bottom: 6px;
+    }
+    .q-text {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .q-context {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+    .options { display: flex; flex-direction: column; gap: 9px; }
+    .opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .18s;
+      user-select: none;
+    }
+    .opt:hover { border-color: var(--purple); background: var(--purple-light); }
+    .opt.selected { border-color: var(--purple); background: var(--purple-light); }
+    .opt-dot {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid #D1D5DB;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all .18s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .opt.selected .opt-dot { border-color: var(--purple); background: var(--purple); }
+    .opt.selected .opt-dot::after {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--white);
+    }
+    .opt-text { font-size: 13.5px; color: #374151; line-height: 1.5; }
+
+    /* ── BUTTONS ──────────────────────────────────── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: var(--white);
+      margin-top: 24px;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(109,40,217,.35); }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .nav-row { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-back {
+      flex: 1;
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--muted);
+      padding: 13px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-back:hover { border-color: #9CA3AF; color: var(--text); }
+    .btn-next {
+      flex: 2.5;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: var(--white);
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-next:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-next:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(109,40,217,.35); }
+
+    /* ── LOADING ──────────────────────────────────── */
+    .loading-wrap { text-align: center; padding: 40px 0; }
+    .spinner {
+      width: 52px; height: 52px;
+      border: 5px solid #E5E7EB;
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      margin: 0 auto 18px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap p { color: var(--muted); font-size: 14px; }
+
+    /* ── RESULT ───────────────────────────────────── */
+    .result-top { text-align: center; margin-bottom: 28px; }
+    .result-emoji { font-size: 60px; margin-bottom: 12px; }
+    .result-badge {
+      display: inline-block;
+      padding: 5px 18px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+    }
+    .level-invisivel .result-badge { background: #FEE2E2; color: var(--red); }
+    .level-emergente .result-badge { background: #FEF3C7; color: #92400E; }
+    .level-crescimento .result-badge { background: #DBEAFE; color: #1E40AF; }
+    .level-estrategico .result-badge { background: #D1FAE5; color: #065F46; }
+
+    .result-name {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .result-subtitle { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    .score-section { margin: 24px 0; }
+    .score-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .score-bar { background: #F3F4F6; border-radius: 100px; height: 10px; overflow: hidden; }
+    .score-fill-anim { height: 100%; border-radius: 100px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+    .level-invisivel .score-fill-anim { background: var(--red); }
+    .level-emergente .score-fill-anim { background: var(--orange); }
+    .level-crescimento .score-fill-anim { background: var(--blue); }
+    .level-estrategico .score-fill-anim { background: var(--green); }
+
+    .weak-box {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .weak-box h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #9A3412;
+      margin-bottom: 12px;
+    }
+    .weak-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 7px;
+      font-size: 13px;
+      color: #7C2D12;
+      line-height: 1.5;
+    }
+    .weak-item:last-child { margin-bottom: 0; }
+    .weak-icon { flex-shrink: 0; }
+
+    .strong-box {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .strong-box h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #14532D;
+      margin-bottom: 10px;
+    }
+    .strong-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #166534;
+      line-height: 1.5;
+    }
+    .strong-item:last-child { margin-bottom: 0; }
+
+    .cta-box {
+      background: linear-gradient(135deg, #4C1D95, #7C3AED);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      color: var(--white);
+    }
+    .cta-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+    .cta-box p { font-size: 13px; opacity: .85; line-height: 1.6; margin-bottom: 18px; }
+    .btn-cta {
+      background: var(--pink);
+      color: var(--white);
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background .2s;
+    }
+    .btn-cta:hover { background: var(--pink-dark); }
+
+    /* ── RESPONSIVE ───────────────────────────────── */
+    @media (max-width: 500px) {
+      .card-header { padding: 24px 24px 20px; }
+      .card-body   { padding: 28px 22px; }
+      .form-row    { grid-template-columns: 1fr; }
+      .q-text      { font-size: 17px; }
+      .card-header h1 { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- ── HEADER ── -->
+  <div class="card-header">
+    <div class="header-tag">Diagnóstico Gratuito</div>
+    <h1>Onde está vazando a sua presença digital?</h1>
+    <p>Responda 10 perguntas rápidas e descubra os pontos críticos que estão travando o crescimento do seu negócio nas redes.</p>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+
+  <!-- ── BODY ── -->
+  <div class="card-body">
+
+    <!-- SCREEN 0: INTRO -->
+    <div class="screen active" id="screen-intro">
+      <p class="intro-lead">Este diagnóstico avalia 10 áreas estratégicas da sua presença digital e, ao final, você recebe um relatório personalizado com o seu nível e os pontos críticos para corrigir.</p>
+      <div class="what-you-get">
+        <p>Você vai receber</p>
+        <div class="what-item"><span class="what-icon">📊</span> Seu nível de presença digital (de Invisível a Estratégico)</div>
+        <div class="what-item"><span class="what-icon">⚠️</span> Os pontos que estão travando o seu crescimento</div>
+        <div class="what-item"><span class="what-icon">✅</span> As áreas onde você já está no caminho certo</div>
+        <div class="what-item"><span class="what-icon">📩</span> O resultado completo no seu e-mail</div>
+      </div>
+      <button class="btn btn-primary" onclick="goTo('screen-form')">Quero fazer o diagnóstico →</button>
+    </div>
+
+    <!-- SCREEN 1: FORM -->
+    <div class="screen" id="screen-form">
+      <div style="margin-bottom:22px;">
+        <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px;">PASSO 1 DE 2</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text);">Antes de começar, me fala um pouco sobre você</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:5px;">Seus dados são usados apenas para enviar o diagnóstico.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Seu nome *</label>
+          <input type="text" id="f-name" placeholder="Ex: Ana Paula" />
+        </div>
+        <div class="form-group">
+          <label>Instagram (@ do perfil) *</label>
+          <input type="text" id="f-instagram" placeholder="@suamarca" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>E-mail para receber o resultado *</label>
+        <input type="email" id="f-email" placeholder="seuemail@gmail.com" />
+      </div>
+      <div class="form-group">
+        <label>WhatsApp *</label>
+        <input type="tel" id="f-whatsapp" placeholder="(11) 99999-9999" />
+      </div>
+      <p class="form-note">🔒 Seus dados não serão compartilhados com terceiros.</p>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo('screen-intro')">← Voltar</button>
+        <button class="btn-next" id="btn-form-next" onclick="startQuiz()">Começar diagnóstico →</button>
+      </div>
+    </div>
+
+    <!-- SCREENS 2–11: QUESTIONS (generated by JS) -->
+
+    <!-- SCREEN LOADING -->
+    <div class="screen" id="screen-loading">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <p>Estamos preparando o seu diagnóstico personalizado…</p>
+      </div>
+    </div>
+
+    <!-- SCREEN RESULT -->
+    <div class="screen" id="screen-result">
+      <!-- content injected by JS -->
+    </div>
+
+  </div><!-- end card-body -->
+</div><!-- end card -->
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURAÇÃO — Substitua a URL abaixo pela URL do seu Google Apps Script
+// ─────────────────────────────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCvbcdJBzqN0WtG3bzKuWeBON7PeRYBoF6rfdEquYPsSwGwYbqbxma0BYjjbQ0XKoXfw/exec';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PERGUNTAS DO QUIZ
+// ─────────────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    area: 'Bio e Perfil',
+    question: 'Como está a sua bio no Instagram?',
+    context: 'A bio é o primeiro contato do cliente com o seu negócio. Ela precisa dizer quem você é, o que vende e o que o visitante deve fazer em seguida.',
+    options: [
+      { text: 'Tenho foto profissional, nome pesquisável, descrição clara do que vendo, categoria definida e link de WhatsApp direto', score: 5 },
+      { text: 'Tenho a maioria desses elementos, mas falta algum detalhe', score: 3 },
+      { text: 'Minha bio está incompleta ou muito genérica', score: 1 },
+      { text: 'Nunca pensei nisso — não sei bem o que colocar', score: 0 }
+    ]
+  },
+  {
+    area: 'Frequência de Posts',
+    question: 'Com que frequência você publica no feed?',
+    context: 'Consistência é o que separa quem cresce de quem fica estagnado. O algoritmo favorece quem publica com regularidade.',
+    options: [
+      { text: '4 vezes ou mais por semana', score: 5 },
+      { text: '2 a 3 vezes por semana', score: 3 },
+      { text: '1 vez por semana ou menos', score: 1 },
+      { text: 'Posto quando lembro ou quando tenho promoção', score: 0 }
+    ]
+  },
+  {
+    area: 'Uso de Stories',
+    question: 'Como você usa os Stories?',
+    context: 'Os Stories são o canal mais próximo do cliente — onde a confiança é construída dia a dia, muito antes da venda acontecer.',
+    options: [
+      { text: 'Publico todos os dias com conteúdo variado: bastidor, produto, enquete, caixinha de perguntas', score: 5 },
+      { text: 'Uso algumas vezes por semana com conteúdos variados', score: 3 },
+      { text: 'Uso principalmente para divulgar promoções ou lançamentos', score: 1 },
+      { text: 'Raramente uso ou não sei como usar de forma estratégica', score: 0 }
+    ]
+  },
+  {
+    area: 'Variedade de Conteúdo',
+    question: 'O que você costuma postar?',
+    context: 'Um perfil que só mostra produto com preço é uma vitrine estática. O que converte é o mix estratégico de inspiração, prova social, bastidor e produto.',
+    options: [
+      { text: 'Mistura de bastidor, produto, depoimento de cliente e conteúdo educativo/inspiracional', score: 5 },
+      { text: 'Principalmente fotos de produto com variação de ângulo e ambiente', score: 3 },
+      { text: 'Quase sempre promoções, preços e anúncios de produto', score: 1 },
+      { text: 'Não tenho padrão — posto o que aparece na hora', score: 0 }
+    ]
+  },
+  {
+    area: 'Call to Action (CTA)',
+    question: 'Suas publicações têm uma chamada para ação?',
+    context: 'Sem CTA, o seguidor olha, curte e vai embora. A chamada para ação é o que transforma visualização em conversa — e conversa em venda.',
+    options: [
+      { text: 'Sempre — peço comentário, salve, compartilhe ou convido para mandar mensagem', score: 5 },
+      { text: 'Às vezes incluo uma chamada no final da legenda', score: 3 },
+      { text: 'Raramente penso nisso', score: 1 },
+      { text: 'Nunca coloquei um CTA nos meus posts', score: 0 }
+    ]
+  },
+  {
+    area: 'Engajamento',
+    question: 'Como você responde comentários e mensagens diretas?',
+    context: 'O Instagram funciona como uma conversa de dois lados. Quem responde rápido ganha pontos no algoritmo — e na confiança do cliente.',
+    options: [
+      { text: 'Respondo todos em menos de 24h e faço perguntas para continuar a conversa', score: 5 },
+      { text: 'Respondo a maioria, mas às vezes me atraso', score: 3 },
+      { text: 'Respondo quando lembro ou quando tenho tempo', score: 1 },
+      { text: 'Raramente respondo ou não monitoro as mensagens com frequência', score: 0 }
+    ]
+  },
+  {
+    area: 'Destaques (Highlights)',
+    question: 'Seus Destaques estão organizados?',
+    context: 'Os Destaques são o menu do seu perfil — a primeira coisa que um visitante percorre para decidir se vale a pena seguir ou comprar.',
+    options: [
+      { text: 'Sim — capas personalizadas e categorias claras (Ex: Peças, Clientes, Como comprar, Sobre nós)', score: 5 },
+      { text: 'Tenho alguns destaques, mas sem organização visual ou categorias bem definidas', score: 3 },
+      { text: 'Tenho, mas nunca atualizei ou estão desorganizados', score: 1 },
+      { text: 'Não tenho destaques ou nunca configurei', score: 0 }
+    ]
+  },
+  {
+    area: 'Análise de Métricas',
+    question: 'Você analisa os dados do seu Instagram?',
+    context: 'Sem dados, você está voando às cegas. As métricas mostram o que funciona, o que o seu público quer ver mais — e onde você está jogando esforço fora.',
+    options: [
+      { text: 'Semanalmente — analiso alcance, impressões, crescimento de seguidores e taxa de engajamento', score: 5 },
+      { text: 'Olho de vez em quando, mas sem regularidade', score: 3 },
+      { text: 'Só olho quando algo vai muito bem ou muito mal', score: 1 },
+      { text: 'Nunca acessei as métricas do Instagram', score: 0 }
+    ]
+  },
+  {
+    area: 'Planejamento de Conteúdo',
+    question: 'Você planeja o conteúdo com antecedência?',
+    context: 'Quem planeja tem consistência. Quem improvisa, posta quando lembra — e o algoritmo pune quem some por dias.',
+    options: [
+      { text: 'Sim — tenho um calendário editorial semanal ou mensal com temas definidos', score: 5 },
+      { text: 'Tenho uma ideia geral, mas sem planejamento formal', score: 3 },
+      { text: 'Posto quando tenho uma ideia ou quando lembro', score: 1 },
+      { text: 'Não tenho nenhum planejamento de conteúdo', score: 0 }
+    ]
+  },
+  {
+    area: 'Visibilidade do Contato',
+    question: 'É fácil entrar em contato com você pelo Instagram?',
+    context: 'Você pode ter o melhor produto, mas se o cliente não encontra como comprar, ele desiste. Facilitar o contato é uma das formas mais simples de aumentar as vendas.',
+    options: [
+      { text: 'Sim — link direto para WhatsApp na bio e respondo mensagens em até 24h', score: 5 },
+      { text: 'Tenho o número na bio, mas sem link direto para o WhatsApp', score: 3 },
+      { text: 'É preciso procurar para achar o contato', score: 1 },
+      { text: 'Não tenho contato visível no perfil', score: 0 }
+    ]
+  }
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NÍVEIS
+// ─────────────────────────────────────────────────────────────────────────────
+const LEVELS = [
+  {
+    min: 0, max: 12,
+    id: 'invisivel',
+    label: 'Nível Invisível',
+    emoji: '🚨',
+    title: 'Você está praticamente invisível online',
+    subtitle: 'Sua confecção existe, mas as redes sociais ainda não estão trabalhando a seu favor. Cada dia sem estratégia é receita que vai para o concorrente.',
+    cta: 'Vamos corrigir isso agora? Clique abaixo para conversar sobre como estruturar a sua presença do zero.'
+  },
+  {
+    min: 13, max: 25,
+    id: 'emergente',
+    label: 'Nível Emergente',
+    emoji: '⚡',
+    title: 'Você está presente, mas sem estratégia',
+    subtitle: 'Você existe nas redes, mas ainda posta sem consistência ou direção clara. Com ajustes nos pontos certos, o crescimento pode ser rápido.',
+    cta: 'Quer saber exatamente por onde começar? Clique abaixo para uma conversa estratégica.'
+  },
+  {
+    min: 26, max: 38,
+    id: 'crescimento',
+    label: 'Nível em Crescimento',
+    emoji: '📈',
+    title: 'Você tem uma base sólida — falta refinar',
+    subtitle: 'Você já entende as redes e tem consistência em alguns pontos. Os gargalos estão nos detalhes estratégicos que ainda escapam.',
+    cta: 'Quer transformar o que já está funcionando em resultados reais? Clique abaixo para conversar.'
+  },
+  {
+    min: 39, max: 50,
+    id: 'estrategico',
+    label: 'Nível Estratégico',
+    emoji: '🏆',
+    title: 'Sua presença digital está madura!',
+    subtitle: 'Você tem uma base consistente e estratégica. O próximo passo é escalar com um olhar ainda mais especializado.',
+    cta: 'Quer descobrir como levar sua presença para o próximo nível? Clique abaixo para conversar.'
+  }
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────────────────────────────────────────
+let currentQuestion = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let leadData = {};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INICIALIZAÇÃO — Gera as telas de perguntas
+// ─────────────────────────────────────────────────────────────────────────────
+(function buildQuestionScreens() {
+  const body = document.querySelector('.card-body');
+  const loadingScreen = document.getElementById('screen-loading');
+
+  QUESTIONS.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'screen';
+    div.id = 'screen-q' + i;
+
+    const optsHtml = q.options.map((o, j) => `
+      <div class="opt" id="opt-${i}-${j}" onclick="selectOption(${i}, ${j}, ${o.score})">
+        <div class="opt-dot"></div>
+        <div class="opt-text">${o.text}</div>
+      </div>
+    `).join('');
+
+    div.innerHTML = `
+      <div class="q-meta">Pergunta ${i + 1} de ${QUESTIONS.length} — ${q.area}</div>
+      <div class="q-text">${q.question}</div>
+      <div class="q-context">${q.context}</div>
+      <div class="options">${optsHtml}</div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="prevQuestion(${i})">← Voltar</button>
+        <button class="btn-next" id="btn-next-${i}" onclick="nextQuestion(${i})" disabled>
+          ${i === QUESTIONS.length - 1 ? 'Ver meu diagnóstico →' : 'Próxima →'}
+        </button>
+      </div>
+    `;
+
+    body.insertBefore(div, loadingScreen);
+  });
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NAVEGAÇÃO
+// ─────────────────────────────────────────────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const total = QUESTIONS.length + 2; // intro + form + questions
+  let current = 0;
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'screen-form') current = 1;
+  else if (activeId && activeId.startsWith('screen-q')) {
+    current = 2 + parseInt(activeId.replace('screen-q', ''));
+  } else if (activeId === 'screen-loading' || activeId === 'screen-result') {
+    current = total;
+  }
+  const pct = Math.round((current / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function startQuiz() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const whatsapp = document.getElementById('f-whatsapp').value.trim();
+  const instagram = document.getElementById('f-instagram').value.trim();
+
+  if (!name || !email || !whatsapp || !instagram) {
+    alert('Por favor, preencha todos os campos antes de continuar.');
+    return;
+  }
+  if (!email.includes('@')) {
+    alert('Por favor, insira um e-mail válido.');
+    return;
+  }
+
+  leadData = { name, email, whatsapp, instagram };
+  currentQuestion = 0;
+  goTo('screen-q0');
+}
+
+function selectOption(qIndex, optIndex, score) {
+  // Deselect all
+  QUESTIONS[qIndex].options.forEach((_, j) => {
+    document.getElementById(`opt-${qIndex}-${j}`)?.classList.remove('selected');
+  });
+  document.getElementById(`opt-${qIndex}-${optIndex}`).classList.add('selected');
+  answers[qIndex] = { optIndex, score };
+  document.getElementById(`btn-next-${qIndex}`).disabled = false;
+}
+
+function nextQuestion(i) {
+  if (answers[i] === null) return;
+  if (i === QUESTIONS.length - 1) {
+    showResult();
+  } else {
+    goTo('screen-q' + (i + 1));
+  }
+}
+
+function prevQuestion(i) {
+  if (i === 0) {
+    goTo('screen-form');
+  } else {
+    goTo('screen-q' + (i - 1));
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESULTADO
+// ─────────────────────────────────────────────────────────────────────────────
+function showResult() {
+  goTo('screen-loading');
+
+  const totalScore = answers.reduce((sum, a) => sum + (a ? a.score : 0), 0);
+  const maxScore = QUESTIONS.length * 5;
+
+  const level = LEVELS.find(l => totalScore >= l.min && totalScore <= l.max) || LEVELS[0];
+
+  // Identify weak points (score 0 or 1)
+  const weakPoints = QUESTIONS
+    .map((q, i) => ({ area: q.area, score: answers[i]?.score ?? 0 }))
+    .filter(x => x.score <= 1)
+    .map(x => x.area);
+
+  // Identify strong points (score 4 or 5)
+  const strongPoints = QUESTIONS
+    .map((q, i) => ({ area: q.area, score: answers[i]?.score ?? 0 }))
+    .filter(x => x.score >= 4)
+    .map(x => x.area);
+
+  // Submit to backend (fire and forget)
+  submitData(totalScore, level.label, weakPoints, strongPoints);
+
+  // Render result after short delay (UX)
+  setTimeout(() => {
+    renderResult(totalScore, maxScore, level, weakPoints, strongPoints);
+    goTo('screen-result');
+  }, 2200);
+}
+
+function renderResult(score, maxScore, level, weakPoints, strongPoints) {
+  const pct = Math.round((score / maxScore) * 100);
+
+  const weakHtml = weakPoints.length > 0
+    ? `<div class="weak-box">
+        <h3>⚠️ Pontos críticos para corrigir agora</h3>
+        ${weakPoints.map(w => `<div class="weak-item"><span class="weak-icon">🔴</span> ${w}</div>`).join('')}
+      </div>`
+    : '';
+
+  const strongHtml = strongPoints.length > 0
+    ? `<div class="strong-box">
+        <h3>✅ Onde você já está no caminho certo</h3>
+        ${strongPoints.map(s => `<div class="strong-item"><span>🟢</span> ${s}</div>`).join('')}
+      </div>`
+    : '';
+
+  document.getElementById('screen-result').innerHTML = `
+    <div class="level-${level.id}">
+      <div class="result-top">
+        <div class="result-emoji">${level.emoji}</div>
+        <div class="result-badge">${level.label}</div>
+        <div class="result-name">${leadData.name.split(' ')[0]}, ${level.title.toLowerCase()}</div>
+        <div class="result-subtitle">${level.subtitle}</div>
+      </div>
+
+      <div class="score-section level-${level.id}">
+        <div class="score-labels">
+          <span>Sua pontuação: <strong>${score} de ${maxScore}</strong></span>
+          <span>${pct}%</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill-anim" id="scoreBar" style="width:0%"></div>
+        </div>
+      </div>
+
+      ${weakHtml}
+      ${strongHtml}
+
+      <div class="cta-box">
+        <h3>Quer transformar esse diagnóstico em ação?</h3>
+        <p>${level.cta}</p>
+        <button class="btn-cta" onclick="openWhatsApp()">💬 Quero conversar sobre minha estratégia</button>
+      </div>
+    </div>
+  `;
+
+  // Animate score bar
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const bar = document.getElementById('scoreBar');
+      if (bar) bar.style.width = pct + '%';
+    }, 100);
+  });
+}
+
+function openWhatsApp() {
+  // ─── Substitua pelo número de WhatsApp da Marília ───
+  const phone = '5581982045919'; // Formato: 55 + DDD + número (sem espaços ou hífen)
+  const msg = encodeURIComponent(`Olá! Acabei de fazer o diagnóstico digital e quero entender melhor como melhorar a minha presença nas redes. 😊`);
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENVIO PARA GOOGLE SHEETS / APPS SCRIPT
+// ─────────────────────────────────────────────────────────────────────────────
+function submitData(score, level, weakPoints, strongPoints) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('COLE_AQUI')) return;
+
+  const payload = {
+    name:         leadData.name,
+    email:        leadData.email,
+    whatsapp:     leadData.whatsapp,
+    instagram:    leadData.instagram,
+    score:        score,
+    level:        level,
+    weakPoints:   weakPoints,
+    strongPoints: strongPoints,
+    answers:      QUESTIONS.map((q, i) => ({
+      area:      q.area,
+      question:  q.question,
+      answer:    q.options[answers[i]?.optIndex ?? 0]?.text ?? '',
+      score:     answers[i]?.score ?? 0
+    }))
+  };
+
+  fetch(APPS_SCRIPT_URL, {
+    method:  'POST',
+    mode:    'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload)
+  }).catch(() => {}); // silently ignore errors — result already shown
+}
+</script>
+</body>
+</html>
